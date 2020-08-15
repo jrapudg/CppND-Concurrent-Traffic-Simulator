@@ -1,6 +1,7 @@
 #include "TrafficLight.h"
 #include <iostream>
 #include <random>
+#include <future>
 
 /* Implementation of class "MessageQueue" */
 
@@ -10,8 +11,8 @@ template <typename T> T MessageQueue<T>::receive() {
   _cond.wait(uLock, [this] { return !_queue.empty(); });
   // to wait for and receive new messages and pull them from the queue using
   // move semantics.
-  T msg = std::move(_queue.back());
-  _queue.pop_back();
+  T msg = std::move(_queue.front());
+  _queue.pop_front();
   // The received object should then be returned by the receive function.
   return msg;
 }
@@ -86,7 +87,9 @@ void TrafficLight::cycleThroughPhases() {
       } else {
         _currentPhase = TrafficLightPhase::red;
       }
-      _messages.send(std::move(_currentPhase));
+      auto future = std::async(std::launch::async, &MessageQueue<TrafficLightPhase>::send, &_messages, std::move(_currentPhase));
+			future.wait();
+      //_messages.send(std::move(_currentPhase));
       previousTime = currentTime;
     }
   }
