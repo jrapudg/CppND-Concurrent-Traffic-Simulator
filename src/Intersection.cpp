@@ -91,8 +91,9 @@ void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle) {
   // TrafficLight::waitForGreen to block the execution until the traffic light
   // turns green.
   
-  if (!Intersection::trafficLightIsGreen())
+  if (!Intersection::trafficLightIsGreen()){
     _trafficLight.waitForGreen();
+  }
   lck.unlock();
 }
 
